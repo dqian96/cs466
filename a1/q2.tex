@@ -1,0 +1,254 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[parfill]{parskip}
+\graphicspath{ {.} }
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\newcommand\floor[1]{\lfloor#1\rfloor}
+\newcommand\ceil[1]{\lceil#1\rceil}
+
+\newtheorem{theorem}{Theorem}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\title{CS 466: Algorithm Design and Analysis - Assigment 1}
+\author{Qian, Yan Liang (David)}
+\date{Date of submission: September 20, 2018}
+
+\begin{document}
+
+\newpage
+
+\section{Question 2}
+
+a) Give a Search algorithm and analyze its worst case run time.
+\newline
+
+\textbf{Answer:} \newline
+
+\textbf{Main Idea}
+
+The main idea behind this algorithm is to search through every one of the sorted arrays in the collection using
+binary search for each array.
+
+Optimizations can be made to possibly improve the run-time of the algorithm in the average case, such as
+only searching $A_i$ where $b_i \neq 0$ or by skipping non-empty arrays where the object of the search $s$, is not in
+the range enclosed by the first and last element of the array. However, without any further knowledge on the contents
+of the universe, we could not effectively use probability theory to do effective analysis on the average case.
+
+Thus, we can only consider the worst case. In the worst case, we have $b_k = 1, b_{k-1} = 1, \ldots, b_0 = 1$. Furthermore,
+it might be the case where $s$ is between the first and last element of all the arrays in the collection,
+but not necessarily in any of them. In these conditions, then it becomes necessary to search through all the arrays
+in the collection. The most effective way to do this is through binary search.
+\newline
+
+\textbf{Algorithm}
+
+Let's now talk about the implementation. Let's assume that we store the set of sorted arrays in a dynamic
+array, known as the \textit{collection}, by reference (details pertaining to memory will be obscured because
+it is irrelevant). Let's assume that we are given \texttt{BinarySearch(A, s)} that searches an array for some element
+$s$ and returns the index that it is at in the array (or should be at, if it cannot be found).
+The implementation of binary search is not relevant for this question. With these considerations in mind, our
+\texttt{Search(Collection c, Object s)} method should output a tuple $(i, j)$ such that if $s$ is in the collection,
+it can be found at $A_{i}[j]$. Otherwise, if $s$ is not in the collection, this method will output $(-1, -1)$.
+
+\begin{algorithm}
+    \caption{Search}\label{euclid}
+
+    \begin{algorithmic}[1]
+        \Procedure{Search(Collection C, Object s)}{}
+        \State $k \gets size(C) - 1$  \Comment{there are k + 1 arrays in the collection}
+        \For{$i \in [0, \ldots, k]$}
+            \State $j \gets \Call{BinarySearch}{A, s}$
+            \If {$A_{i}[j] == s$} \Return $(i, j)$
+            \EndIf
+        \EndFor
+
+        \State \Return $(-1, -1)$
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\newline
+
+\textbf{Proof of Correctness}
+
+It's easy to see how this algorithm is correct. Since we are searching through all the arrays in the collection
+using binary search, if the element $s \in C$, then we are sure to find it.
+Otherwise, if $s \notin C$, then the if statement on line 5 will never evaluate to true, and we will report
+that it could not be found.
+\newline
+
+\textbf{Complexity Analysis}
+
+Knowing that the runtime of binary search is $O(\log n)$ for an array of size $n$,
+then the runtime of this algorithm can be neatly calculated with the expression below:
+
+\begin{align*}
+    &\sum\limits_{i=0}^k \log{2^i} \\
+    =& \sum\limits_{i=0}^{ \floor{\log n + 1} } i \\
+    \leq& \dfrac{(\log{n} + 2)^2}{2} \\
+    \in& \; \mathbb{O}((\log n)^2)
+\end{align*}
+
+
+\newline
+
+
+
+b) Give an Insert algorithm and analyze its worst case and amortized run times.
+\newline
+
+\textbf{Answer:} \newline
+
+\textbf{Main Idea}
+
+The main idea behind the insertion algorithm is pretty simple. We can model insertion to the collection of sorted
+arrays with the help of a binary counter. Consider a binary number of $k + 1$ bits.
+Define $b_i = 1 \Leftrightarrow \neg empty(A_i)$, otherwise $b_i = 0 \Leftrightarrow empty(A_i)$.
+Note that this data structure is defined in a way such that an array is either empty or completely full. As a result,
+if $b_i = 0 \Leftrightarrow empty(A_0)$ then we can immediately insert the element to $A_0$ in constant time. If this
+is not the case, then we cannot simply create a new array $A_{k+1}$ and insert it into there since it won't be
+completely full. We must re-order the existing elements in the array, and only create $A_{k+1}$ if the number
+of elements in the data structure exceeds $2^{k+1} - 1$. Now, let's consider how we can go about re-ordering the
+elements in the array.
+
+To re-order elements, we keep an interim sorted array $B_m$ of size $m$. This array holds the elements that will be
+eventually inserted into the collection \textit{C} at the end of the re-ordering procedure. Initially, this array
+is of size one and contains only the element to be inserted $s$. Now, let's iterate from the smallest arrays in the
+collection to the biggest. There are 2 cases:
+
+\begin{enumerate}
+    \item
+        If the array under consideration $A_i$ is full, we merge the contents of the array with $B_{2^i}$ to form the
+        new interim array $B_{2^{i+1}}$ using the merging approach found in merge sort.
+        Now, we know that both arrays to be merged will  always have the same number of elements (power of 2) as
+        we start with $B_1$ having only one element, and double its contents for every non-empty array we encounter.
+        Set $A_i$ to be empty (i.e null reference or use a table) after the merge.
+    \item
+        If the array under consideration $A_i$ is empty, then we simply move the elements in $B_{2^i}$ into it.
+        We know that interim array has the same size as the empty array because of the result of the previous merge
+        (double the size of $A_{i-1}$). Now, \textit{C} contains all the previous elements and $s$, and all the
+        arrays in it are sorted, full or empty.
+\end{enumerate}
+
+\textbf{Tidbit}: We can think of this procedure as adding 1 to a binary counter $b_{k}b_{k-1} \ldots b_{1}b_{0}$. Going
+from the right to left side, we see that every time we flip a 1 to a 0, we actually empty it and move its contents into
+an interim array.  When the carry is consumed and we finally flip a 0 to 1, we know that it is the previously empty
+array that we should move the contents of the interim array into it. \newline
+
+\textbf{Algorithm}
+
+Let's now talk about the implementation. We assume that the \textit{collection} is implemented the same way
+as mentioned in the previous part.
+
+Let's assume that we are given \texttt{Allocate(n)} that allocates an array of size $n$ in linear time.
+Furthermore, as $C$ is a dynamic array, we can also \texttt{Add} to it in $\log n$ time (where n is the number of
+elements in the collection) and amortized constant time.
+
+Lastly, for ease of writing the pseudocode, let's suppose we have \texttt{Merge(A, M1, M2)} which merges the content
+from arrays $M1$ and $M2$ into $A$ using a two pointer approach (the one used in merge sort) in linear time with
+respect to the number of elements.
+
+
+\begin{algorithm}
+    \caption{Insert}\label{euclid}
+
+    \begin{algorithmic}[1]
+        \Procedure{Insert(Collection C, Object s)}{}
+        \State $k \gets size(C) - 1$            \Comment{there are k + 1 arrays in the collection}
+        \State $B \gets \Call{Allocate}{1}$     \Comment{first interim array}
+        \State $B[0] \gets s$
+        \For{$i \in [0, \ldots k + 1]$}
+            \If{$i == k + 1$}
+            \State \Call{Add}{$C, B$} \Comment{add the interim array to $C$}
+            \EndIf
+            \If{\Call{Empty}{$A_i$}}
+                \State $A_i \gets B$
+                \State \Return
+            \EndIf
+            \State $B_{new} \gets \Call{Allocate}{2^{i+1}}$    \Comment{not empty case}
+            \State \Call{Merge}{$B_{new}, B, A_i$}
+            \State $A_i \gets \emptyset$   \Comment{empty array}
+            \State $B \gets B_{new}$
+        \EndFor
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\newline
+
+\textbf{Proof of Correctness}
+
+It's easy to see how this algorithm is correct. At every iteration of the loop, we are either moving
+elements away from existing arrays, which do not violate the order and structure constraint of the
+data structure (all arrays in it are sorted and arrays are either completely empty or full), or
+we are replacing an empty array with the interim array or adding the interim array to the collection.
+The interim array has the same size as the one to be replaced because the previous step allocated an interim array of
+size $2^{i+1}$. This also means that if we are adding it to the collection, the interim array has twice
+the size of the largest array in the collection. Since the interim array is always sorted (by merge) and contains
+all the elements removed from the collection and the element to be inserted (that's the only way it gets
+populated), the new collection now has sorted arrays that are either full or empty, in sizes of powers of 2, so its
+constraints are still met. Now, however, it contains the element to be inserted, so we see that the insertion was
+successful.
+
+\newline
+
+\textbf{Worst Case Complexity Analysis}
+
+In the worst case, all the arrays in the collection are full, and so at each $i$, we are doing
+$2^{i+1}$ work in allocating and merging until $\log n + 1$th iteration.
+Thus, to find the worse case, the computation is as follows:
+
+\begin{align*}
+    & \Rightarrow \sum\limits_{i=0}^{ \floor{\log n + 1} } 2^{i+1}\\
+    & = 2(2^{\floor{\log n + 1}} - 1)\\
+    & \leq 2(n + 1) \\
+    & \in O(n) \\
+\end{align*}
+
+Thus, in the worst case, the insert algorithm takes $O(n)$ time.
+\newline
+
+\textbf{Amortized Complexity Analysis}
+
+As mentioned previously, we can model the way which we merge sorted arrays by incrementing a binary counter. The
+amortized cost of incrementing a binary counter where it costs 1 to flip a bit is $O(1)$.
+However, we now have the additional requirement of allocating and merging arrays when we flip a bit.
+
+From the algorithm given above, when we flip a 1 to a 0, we must allocate $B_{2^{i+1}}$ and merge $A_i$ and
+$B_{2^i}$. Thus, for the $i$th bit, the work to flip a 1 to 0 has a cost no greater than $c * 2^{i+1}$ where
+$c$ is some constant. When we flip a 0 to a 1, the cost is constant as we just change references (it does
+not matter if we copy it instead, since it's constant amortized over n operations).
+Lastly, we know that the amortized time of adding to a dynamic array (the \textif{collection})
+is constant time, so we will obscure this from our analysis.
+
+With this intuition, let's sum up the work done over n elements. Remember from class that we flip the
+$i$th bit $\floor{\dfrac{n}{2^i}}$ times, but only for half of those times do we actually do work (1 to 0).
+Given that there are $\floor{\log n + 1}$ bits, we have the following formula:
+
+\begin{align*}
+    & \Rightarrow \dfrac{1}{n} \sum\limits_{i=0}^{ \floor{\log n + 1} } \floor{\dfrac{n}{2^{i+1}}} * c * 2^{i + 1} \\
+    & \leq \dfrac{1}{n} \sum\limits_{i=0}^{ \floor{\log n + 1} } cn \\
+    & \leq c \sum\limits_{i=0}^{ \floor{\log n + 1} } 1 \\
+    & \leq  c (\log n + 2) \\
+    & \in O(\log n)
+\end{align*}
+
+Since we know that appending to a dynamic array is amortized constant time, the final amortized run-time is
+$O(1) + O(\log n)$, which is $O(\log n)$.
+
+
+\end{document}
+

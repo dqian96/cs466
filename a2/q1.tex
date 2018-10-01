@@ -1,0 +1,82 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[parfill]{parskip}
+\graphicspath{ {.} }
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\newcommand\floor[1]{\lfloor#1\rfloor}
+\newcommand\ceil[1]{\lceil#1\rceil}
+
+\newtheorem{theorem}{Theorem}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\title{CS 466: Algorithm Design and Analysis - Assigment 1}
+\author{Qian, Yan Liang (David)}
+\date{Date of submission: September 20, 2018}
+
+\begin{document}
+\newpage
+
+\section{Question 1}
+
+[10 marks] Suppose you have a splay tree with keys $1 \ldots n$ and you access the keys sequentially,
+i.e. you search for $1, 2, \ldots, n$, in that order, performing a splay on each one.
+
+a) [2 marks] What is the structure of the final splay tree? Justify your answer.
+
+
+
+
+
+\newline
+
+\textbf{Answer:} We will define potential to be the number of elements in the array.
+Thus, when the array has $k$ elements, $\Phi = k$.
+This guarantees that $\Phi_i \geq 0$ for all $i$, confirming that it is a valid potential.
+Furthermore, we see that this allows the initial potential to be $\Phi_0 = 0$ as initially, we start off with
+an empty array.
+\newline
+
+b) Prove that the final potential is $\geq$ initial potential.
+\newline
+
+\textbf{Answer:} Initially, we start off with an empty array - there are 0 elements in the array. Thus, the initial
+potential is 0.
+The number of elements stored in the array can only ever be a non-negative number. Thus, the final array contains
+\textit{at least} 0 elements, and so the final potential is at least 0, which means it's at least the initial potential.
+\newline
+
+c) Conclude that the amortized cost of each operation is $O(1)$.
+\newline
+
+\textbf{Answer:} In class, we were given the following theorem:
+
+\begin{theorem}
+    If final potential $\geq$ initial potential, then amortized cost $\leq$ max charge.
+\end{theorem}
+
+From part b), we know that final potential $\geq$ initial potential. Thus, we can apply this theorem to the two
+operations.
+
+For the add operation, we are given the constant $charge = 2$. Thus, by the theorem, we know that amortized cost $\leq
+2$. Since 2 is a constant, we know that amortized cost $\in O(1)$.
+
+For the empty operation, we are given the constant $charge = 1$. Thus, by the theorem, we know that amortized cost $\leq
+1$. Since 1 is a constant, we know that amortized cost $\in O(1)$.
+\newline
+
+
+\end{document}
+

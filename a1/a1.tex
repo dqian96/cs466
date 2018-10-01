@@ -1,0 +1,283 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[parfill]{parskip}
+\graphicspath{ {.} }
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\newcommand\floor[1]{\lfloor#1\rfloor}
+\newcommand\ceil[1]{\lceil#1\rceil}
+
+\newtheorem{theorem}{Theorem}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\title{CS 466: Algorithm Design and Analysis - Assigment 1}
+\author{Qian, Yan Liang (David)}
+\date{Date of submission: September 20, 2018}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\vspace{4.0cm}
+\vspace{0.5cm}
+Student ID: 20568467 \\
+\vspace{0.5cm}
+Waterloo Email: ylqian@edu.uwaterloo.ca \\
+\vspace{5.0cm}
+\end{center}
+
+\newpage
+
+\tableofcontents
+
+\section{Question 1}
+
+a) What is the potential when the array has \textit{k} elements?
+\newline
+
+\textbf{Answer:} We will define potential to be the number of elements in the array.
+Thus, when the array has $k$ elements, $\Phi = k$.
+This guarantees that $\Phi_i \geq 0$ for all $i$, confirming that it is a valid potential.
+Furthermore, we see that this allows the initial potential to be $\Phi_0 = 0$ as initially, we start off with
+an empty array.
+\newline
+
+b) Prove that the final potential is $\geq$ initial potential.
+\newline
+
+\textbf{Answer:} Initially, we start off with an empty array - there are 0 elements in the array. Thus, the initial
+potential is 0.
+The number of elements stored in the array can only ever be a non-negative number. Thus, the final array contains
+\textit{at least} 0 elements, and so the final potential is at least 0, which means it's at least the initial potential.
+\newline
+
+c) Conclude that the amortized cost of each operation is $O(1)$.
+\newline
+
+\textbf{Answer:} In class, we were given the following theorem:
+
+\begin{theorem}
+    If final potential $\geq$ initial potential, then amortized cost $\leq$ max charge.
+\end{theorem}
+
+From part b), we know that final potential $\geq$ initial potential. Thus, we can apply this theorem to the two
+operations.
+
+For the add operation, we are given the constant $charge = 2$. Thus, by the theorem, we know that amortized cost $\leq
+2$. Since 2 is a constant, we know that amortized cost $\in O(1)$.
+
+For the empty operation, we are given the constant $charge = 1$. Thus, by the theorem, we know that amortized cost $\leq
+1$. Since 1 is a constant, we know that amortized cost $\in O(1)$.
+\newline
+
+
+\section{Question 2}
+
+a) Give a Search algorithm and analyze its worst case run time.
+\newline
+
+\textbf{Answer:} \newline
+
+\textbf{Main Idea}
+
+The main idea behind this algorithm is to search through every one of the sorted arrays in the collection using
+binary search for each array.
+
+Optimizations can be made to possibly improve the run-time of the algorithm in the average case, such as
+only searching $A_i$ where $b_i \neq 0$ or by skipping non-empty arrays where the object of the search $s$, is not in
+the range enclosed by the first and last element of the array. However, without any further knowledge on the contents
+of the universe, we could not effectively use probability theory to do effective analysis on the average case.
+
+Thus, we can only consider the worst case. In the worst case, we have $b_k = 1, b_{k-1} = 1, \ldots, b_0 = 1$. Furthermore,
+it might be the case where $s$ is between the first and last element of all the arrays in the collection,
+but not necessarily in any of them. In these conditions, then it becomes necessary to search through all the arrays
+in the collection. The most effective way to do this is through binary search.
+\newline
+
+\textbf{Algorithm}
+
+Let's now talk about the implementation. Let's assume that we store the set of sorted arrays in a dynamic
+array, known as the \textit{collection}, by reference (details pertaining to memory will be obscured because
+it is irrelevant). Let's assume that we are given \texttt{BinarySearch(A, s)} that searches an array for some element
+$s$ and returns the index that it is at in the array (or should be at, if it cannot be found).
+The implementation of binary search is not relevant for this question. With these considerations in mind, our
+\texttt{Search(Collection c, Object s)} method should output a tuple $(i, j)$ such that if $s$ is in the collection,
+it can be found at $A_{i}[j]$. Otherwise, if $s$ is not in the collection, this method will output $(-1, -1)$.
+
+\begin{algorithm}
+    \caption{Search}\label{euclid}
+
+    \begin{algorithmic}[1]
+        \Procedure{Search(Collection C, Object s)}{}
+        \State $k \gets size(C) - 1$  \Comment{there are k + 1 arrays in the collection}
+        \For{$i \in [0, \ldots, k]$}
+            \State $j \gets \Call{BinarySearch}{A, s}$
+            \If {$A_{i}[j] == s$} \Return $(i, j)$
+            \EndIf
+        \EndFor
+
+        \State \Return $(-1, -1)$
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\newline
+
+\textbf{Proof of Correctness}
+
+It's easy to see how this algorithm is correct. Since we are searching through all the arrays in the collection
+using binary search, if the element $s \in C$, then we are sure to find it.
+Otherwise, if $s \notin C$, then the if statement on line 5 will never evaluate to true, and we will report
+that it could not be found.
+\newline
+
+\textbf{Complexity Analysis}
+
+Knowing that the runtime of binary search is $O(\log n)$ for an array of size $n$,
+then the runtime of this algorithm can be neatly calculated with the expression below:
+
+\begin{align*}
+    &\sum\limits_{i=0}^k \log{2^i} \\
+    =& \sum\limits_{i=0}^{ \floor{\log n + 1} } i \\
+    \leq& \dfrac{(\log{n} + 2)^2}{2} \\
+    \in& \; \mathbb{O}((\log n)^2)
+\end{align*}
+
+
+\newline
+
+
+
+b) Give an Insert algorithm and analyze its worst case and amortized run times.
+\newline
+
+\textbf{Answer:} \newline
+
+\textbf{Main Idea}
+
+The main idea behind the insertion algorithm is pretty simple. We can model insertion to the collection of sorted
+arrays with the help of a binary counter. Consider a binary number of $k + 1$ bits.
+Define $b_i = 1 \Leftrightarrow \neg empty(A_i)$, otherwise $b_i = 0 \Leftrightarrow empty(A_i)$.
+Note that this data structure is defined in a way such that an array is either empty or completely full. As a result,
+if $b_i = 0 \Leftrightarrow empty(A_0)$ then we can immediately insert the element to $A_0$ in constant time. If this
+is not the case, then we cannot simply create a new array $A_{k+1}$ and insert it into there since it won't be
+completely full. We must re-order the existing elements in the array, and only create $A_{k+1}$ if the number
+of elements in the data structure exceeds $2^{k+1} - 1$. Now, let's consider how we can go about reordering the
+elements in the array.
+
+To re-order elements, we consider the smallest arrays first. If the array is full, we mark it. When we first reach
+an empty array, we move all the elements from the marked arrays and the element to be inserted into the empty array.
+Note that if all the arrays are full, then the empty array is the newly created $A_{k+1}$. We then sort this array
+to maintain the ordering property using quick sort. Note that this strategy is general and works for the case
+where $b_0 = 0$.
+
+We can think of this procedure as adding 1 to a binary counter $b_{k}b_{k-1} \ldots b_{1}b_{0}$. Going from the right
+to left side, we see that every time we flip a 1 to a 0, we actually empty it and move its contents into a larger array.
+When the carry is consumed and we finally flip a 0 to 1, we know that it is the previously empty array that we moved
+all the marked elements into, including the element to be inserted.
+\newline
+
+\textbf{Algorithm}
+
+Let's now talk about the implementation. We assume that the \textit{collection} is implemented the same way
+as mentioned in the previous part.
+Let's assume that we are given \texttt{QuickSort(A)} that sorts an array (in-place). In addition, let's assume
+that we are given \texttt{Allocate(n)} that allocates an array of size $n$ in linear time. Furthermore, as $C$ is a
+dynamic array, we can also \texttt{Add} to it in $\log n$ time and amortized constant time.
+Lastly, for ease of writing the pseudocode, let's suppose the \texttt{Move(A[], B[])} method simply moves the contents
+of \texttt{A} into \texttt{B} from the leftmost available index. Of course, this is linear with respect to the
+size of array \texttt{A}.
+
+
+\begin{algorithm}
+    \caption{Insert}\label{euclid}
+
+    \begin{algorithmic}[1]
+        \Procedure{Insert(Collection C, Object s)}{}
+        \State $k \gets size(C) - 1$  \Comment{there are k + 1 arrays in the collection}
+        \For{$i \in [0, \ldots k + 1]$}
+            \If{$i == k + 1$}
+                \State $A_{k+1} \gets \Call{Allocate}{2^{k+1}}$
+                \State \Call{Add}{$C, A_{k+1}$} \Comment{add the new array $A_{k+1}$ to $C$}
+            \EndIf
+            \If{\Call{Empty}{$A_i$}}
+                \For{$j \in [0, \ldots i - 1]$}
+                    \Call{Move}{$A_j, A_i$}
+                \EndFor
+
+                \State $A_{i}[2^i - 1] \gets s$
+                \State \Call{QuickSort}{$A$}
+                \State \Return
+            \EndIf
+        \EndFor
+
+
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\newline
+
+\textbf{Proof of Correctness}
+
+It's easy to see how this algorithm is correct. Assuming we are starting with a properly ordered and structured
+collection, we are simply moving $2^0 + 2^1 + 2^2 + \ldots + 2^{i-1} + 1 = 2^i$ elements into an array $A_i$ with size
+$2^i$ and then sorting it. Thus, all the arrays in the collection are still either empty or completely full, and
+all arrays are still sorted. The properties of the data structure are kept and a new element is inserted.
+\newline
+
+\textbf{Worst Case Complexity Analysis}
+
+In the worst case, we have to move all of the $n$ elements to a new array and then sort it, which takes
+$O(n) + O(n \log n) \in O(n \log n)$ time. Allocating the new array and appending it to the collection of sorted arrays
+takes $O(n) + O(\log n) \in O(n)$, in the worst case, but this is subsumed by the complexity of the sorting step.
+
+Thus, in the worst case, the insert algorithm takes $O(n \log n)$ time.
+\newline
+
+\textbf{Amortized Complexity Analysis}
+
+As mentioned previously, we can model the way which we merge sorted arrays by incrementing a binary counter. The
+amortized cost of incrementing a binary counter where it costs 1 to flip a bit is $O(1)$. However, we now have the
+additional requirement of moving elements from smaller arrays to bigger arrays, which is clearly not constant
+time as it depends on the size of the array. From the algorithm given above, when we flip a 1 to a 0, we
+simply 'mark' the array such that its elements will be moved later on, and when we flip a 0 to 1, we actually
+move all the elements from the marked arrays into the corresponding array and then sort it.
+Thus, for the $i$th bit, the work to flip a 1 to 0 is 0 whereas the work to flip a 0 to a 1 is
+$2^i + \log 2^i * 2^i = 2^i + i2^i$ (cost of moving and sorting, respectively). Furthermore, once for each bit $i$, we do $2^i$ work on allocating the
+$A_i$ for the first time. Lastly, we know that the amortized time of adding to a dynamic array (the \textif{collection})
+is constant time, so we will obscure this from our analysis.
+
+With this intuition, let's sum up the work done over n elements. Remember from class that we flip the
+$i$th bit $\floor{\dfrac{n}{2^i}}$ times, but only for half of those times do we actually do work (0 to 1).
+Given that there are $\floor{\log n + 1}$ bits, we have the following formula:
+
+\begin{align*}
+    & \Rightarrow \dfrac{1}{n} \sum\limits_{i=0}^{ \floor{\log n + 1} } \floor{\dfrac{n}{2^{i+1}}} * (2^{i} + i2^i) +
+    2^i \\
+    & \leq \dfrac{1}{n} \sum\limits_{i=0}^{ \floor{\log n + 1} } n * (1 + i) + 2^i \\
+    & \leq  \sum\limits_{i=0}^{ \floor{\log n + 1} } 1 + i + \dfrac{2^i}{n} \\
+    & \leq  \log n + 2 + (\log n + 2)^2 + \sum\limits_{i=0}^{ \floor{\log n + 1} } \dfrac{2^i}{n} \\
+    & \leq  \log n + 2 + (\log n + 2)^2 + \dfrac{2^{\log n + 2}}{n} \\
+    & \in O((\log n)^2)
+\end{align*}
+
+Since we know that appending to a dynamic array is amortized constant time, the final amortized run-time is
+$O(1) + O((\log n)^2)$, which is $O((\log n)^2)$.
+
+
+\end{document}
+
