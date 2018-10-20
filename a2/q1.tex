@@ -31,52 +31,98 @@
 
 \section{Question 1}
 
-[10 marks] Suppose you have a splay tree with keys $1 \ldots n$ and you access the keys sequentially,
-i.e. you search for $1, 2, \ldots, n$, in that order, performing a splay on each one.
 
-a) [2 marks] What is the structure of the final splay tree? Justify your answer.
+i) [2 marks] What is the structure of the final splay tree? Justify your answer.
+
+\textbf{Answer:}
+
+The final structure of the splay tree is a single path/list with 1 as the lowest leaf, 2 as the second lowest
+leaf (left child is 1), 3 as the third lowest leaf (left child is 2), $\ldots$  until you have $n$ as the root. In other
+words, a single path extending to the bottom left from $n$ down to $1$.
+
+We can reason this by induction.
+
+Our inductive hypothesis is that on the $k$th splay, $k$ will be the root, and all keys smaller than $k$ will form
+a single path extending to the left in reverse sorted order i.e $k-1$ is the left child of $k$, $k-2$ is the left child
+of $k-1$, etc.
+
+Let's look at the base case. On the first splay for $key = 1$, we will have 1 as the root, by definition of the splay
+operation. Since the tree is a BST, we know that the left subtree of the root is empty since there are no keys smaller
+than 1. Thus, our inductive hypothesis is satisfied.
+
+Assuming on the $m$th splay, our inductive hypothesis is satisfied, let's prove it for $m + 1$. First off, we know that
+$m + 1$ is in the right subtree of the root. We see that eventually, the splay will propagate the key $m +
+1$ to the (right child of the root) or the (left child of the right child of the root). This is because there are no smaller
+keys than $m + 1$ in the right subtree of the root. This also means that $m + 1$ could not have a left subtree.
+Thus, the final splay to make $m + 1$ the root will follow either case 1
+or case 3 rotations. In both cases, key $m$ becomes the left child of the new root $m + 1$, and the left subtree of $m$
+stays the left subtree of $n$ after the rotation - the path is preserved. No right subtrees are added to $m$ since $m +
+1$ did not originally have a left subtree. Thus, we now have $m + 1$ as the root on the $m + 1$th splay, and all smaller
+keys form a path down to the left as the root's left subtree. The inductive hypothesis is satisfied.
+
+Thus, by induction, we know that this structure is held until the $n$th splay.
 
 
 
+ii)  [2 marks] Prove the following special case: Suppose that the initial splay tree is a path of right children.
+Prove that the total work for the access sequence $1, 2, \ldots n$ is $O(n)$
+
+\textbf{Answer:}
+
+Since we're given an initial splay tree of right children, we can assume that the children are ordered from 1 (at the
+root) to n (leaf). This is because of the BST property.
+
+The first splay on 1 takes constant time since it is already at the root of the tree.  Now, because of the successive
+path ordering for the right subtree of this splay tree, we know that the next node to splay $k$ will always be the right
+child of the root - this is case 3. Searching for $k$ takes a constant amount of time since it is just the right child
+of the root. Note that $k$ has no left subtree. The rotation simply re-adjusts pointers such that $k$ is now at the
+root, $k - 1$ is it's left child. This is constant time. Now we do a constant amount of work for $n$ nodes, we do a
+total of $c * n$ work, for some constant $c$, which is $O(n)$.
 
 
-\newline
 
-\textbf{Answer:} We will define potential to be the number of elements in the array.
-Thus, when the array has $k$ elements, $\Phi = k$.
-This guarantees that $\Phi_i \geq 0$ for all $i$, confirming that it is a valid potential.
-Furthermore, we see that this allows the initial potential to be $\Phi_0 = 0$ as initially, we start off with
-an empty array.
-\newline
+iii)  [5 marks] Show how to use single rotations to turn any binary search tree into a path of
+right children in $O(n)$ time.
 
-b) Prove that the final potential is $\geq$ initial potential.
-\newline
+\textbf{Answer:}
 
-\textbf{Answer:} Initially, we start off with an empty array - there are 0 elements in the array. Thus, the initial
-potential is 0.
-The number of elements stored in the array can only ever be a non-negative number. Thus, the final array contains
-\textit{at least} 0 elements, and so the final potential is at least 0, which means it's at least the initial potential.
-\newline
+Let's assume that each rotation costs some constant amount of work as it is just adjusting pointers.  Now, all we have
+to do is find the largest key in the tree with a left child, and do a right rotation on it with its left child. Do this
+repeatedly until we have a path of right children.
 
-c) Conclude that the amortized cost of each operation is $O(1)$.
-\newline
+It's clear that every rotation will move exactly one node into the straight path from the root to the largest key in the
+tree. Thus, after the $n$th time, we will have a path of right children. The total amount of work is $c * n$, and so the
+runtime complexity is $O(n)$.
 
-\textbf{Answer:} In class, we were given the following theorem:
+Now let's build some intuition on why this works. Let $k$ be the largest node in the tree with left children. We will
+assume that $k$'s right subtree is a path of right children. Why? By definition, since $k$ is the greatest key in the
+tree with left children, we see that all greater values than it must be in its right subtree. The nodes in its right
+subtree cannot have left children by definition. Thus, the right children of $k$ form a right path.
 
-\begin{theorem}
-    If final potential $\geq$ initial potential, then amortized cost $\leq$ max charge.
-\end{theorem}
+Now, we do a right rotation on $k$ and its left child, let label it $j$. This will make it so that $k$ becomes the right
+child of $j$. Note that $k$ will acquire the right subtree of $j$, but the straight right path from the root to the
+largest node has been extended by 1 (with $j$). Note that once a node is in this path, subsequent right rotations can
+only happen on it and its left child in our approach, in which case it will never lose its position in its path. Future
+rotations will continue to bring in nodes to this path, until all nodes are in this path, and we have a path of right
+children.
 
-From part b), we know that final potential $\geq$ initial potential. Thus, we can apply this theorem to the two
-operations.
+iii)  [1 mark] Prove that the Dynamic Optimality Conjecture implies the Sequential Access
+Property.
 
-For the add operation, we are given the constant $charge = 2$. Thus, by the theorem, we know that amortized cost $\leq
-2$. Since 2 is a constant, we know that amortized cost $\in O(1)$.
+\textbf{Answer:}
 
-For the empty operation, we are given the constant $charge = 1$. Thus, by the theorem, we know that amortized cost $\leq
-1$. Since 1 is a constant, we know that amortized cost $\in O(1)$.
-\newline
+Let $seq$ define the access sequence that was outlined in the previous part. Now $seq$ with rotations would convert a BST
+into a path of right children. Let's then perform the access sequence $1, 2, 3, \ldots, n$ on the BST, with a left
+rotation on each key accessed. This would turn the BST into a path of left children. Note that for this access sequence,
+the key can always be found at the root of the tree or at the root's right child. Thus, the cost per access is always
+constant. This is the basically the special case from the part 2. For this access sequence with
+rotations, the work done for the BST is $O(n)$ as well. Thus, the cost of the complete access sequence of $tseq = seq, 1,
+2, \ldots, n$ is $O(n) + O(n) \in O(n)$ for the BST.
 
+By the dynamic optimality conjecture, splay trees are as optimal (within a constant) as any BST search algorithm for a
+given sequence. Thus, the cost for accessing $tseq$ for a splay tree is also $O(n)$. Thus, for the access sequence of
+$1, 2, 3, \ldots n$ on a splay tree, we can first 'preprocess' the tree with the access sequence $seq$, and then perform
+the access sequence $1, 2, 3, \ldots n$ on it, which would be $O(n)$ by the conjecture.  Thus, given the access sequence
+$1, 2, \ldots n$, we can ultimately perform it on a given splay tree in $O(n)$, which is the sequential access property.
 
 \end{document}
-

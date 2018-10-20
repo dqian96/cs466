@@ -1,0 +1,61 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[parfill]{parskip}
+\graphicspath{ {.} }
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\newcommand\floor[1]{\lfloor#1\rfloor}
+\newcommand\ceil[1]{\lceil#1\rceil}
+
+\newtheorem{theorem}{Theorem}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\title{CS 466: Algorithm Design and Analysis - Assigment 1}
+\author{Qian, Yan Liang (David)}
+\date{Date of submission: September 20, 2018}
+
+\begin{document}
+\newpage
+
+\section{Question 2}
+
+
+[3 marks] Show that this is impossible using the fact that sorting a list of n elements requires $\Omega (n \log n)$
+time.
+
+\textbf{Answer:}
+
+Suppose we are given an array of $n$ numbers $A$. Let's now insert these numbers into a binomial heap. Given that the
+amortized cost for insert is $O(1)$, then the cost of inserting these $n$ numbers should be $O(n)$. Now, let's
+call delete-min to delete $n$ numbers from the heap and re-insert them into the array in the order that we pop them.
+Since the amortized cost is constant for delete-min, deleting $n$ elements will cost $O(n)$ total. Since we pop the
+numbers from the least to greatest, our array is now in sorted order. We now sorted the array in $O(n) + O(n) \in O(n)$
+time, which is not possible given that the lower bound for comparision based sorting is $\Omega (n \log n)$. Thus, these
+operations cannot be both amortized constant time.
+
+
+ii) [4 marks] Explain precisely what is wrong with M.A. Zing’s argument.
+
+\textbf{Answer:}
+
+The problem with M.A Zing's argument is that his calculation of the amortized merge operation is based on merging
+binomial heaps of the same size. Every insert operation operation increases the size of the binomial heap by 1, and the
+merge is performed with 1 element instead. This increases the entropy in the data structure.
+
+For delete min, we additionally have to find the minimum element, which is itself $\log n$, so it requires more than
+just the cost of the merge.
+
+
+\end{document}
