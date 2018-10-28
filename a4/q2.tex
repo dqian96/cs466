@@ -1,0 +1,140 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[parfill]{parskip}
+\graphicspath{ {.} }
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\newcommand\floor[1]{\lfloor#1\rfloor}
+\newcommand\ceil[1]{\lceil#1\rceil}
+
+\newtheorem{theorem}{Theorem}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\title{CS 466: Algorithm Design and Analysis - Assigment 4}
+\author{Qian, Yan Liang (David)}
+\date{Date of submission: October 28, 2018}
+
+\begin{document}
+\newpage
+
+\section{Question 2}
+
+a)
+
+Prove $S_1 = S_2 \Rightarrow P(S_1) \equiv P(S_2)$.
+
+By definition, the polynomials formed from $S_1 = \{e_1, e_2, \ldots, e_n \}$ and $S_2 = \{f_1, f_2, \ldots, f_n\}$ are
+$P(S_1) = (x - e_1)(x - _2)\ldots(x - e_n)$ and $P(S_2) = (x - f_1)(x - f_2)\ldots(x - f_n)$. Now, since multiplication
+is commutative, we can re-arrange factors of both $P(S_1)$ and $P(S_2)$ by increasing order of $e_i$ and $f_i$,
+respectively. Now, $P(S_1) = (x - e_{s1})(x - e_{s2})\ldots(x - e_{sn})$ and $P(S_2) = (x - f_{s1})(x - f_{s2})\ldots(x -
+f_{sk})$.  Now, since $S_1$ and $S_2$ contain the same numbers with the same multiplicities, then the elements in sorted
+order must match index for index. Thus, we have $e_{si} = f_{si}$ for all $i$. Thus, the polynomials match exactly.
+
+Prove $P(S_1) \equiv P(S_2) \Rightarrow S_1 = S_2$.
+
+If two polynomials in $x$ are the same, then they must have the same coefficeints when written in the form $a_n x^n +
+\ldots + a_1 x^1 + a_0$. Thus, they must also have the same roots with the same multiplicities.  By definition, the sets
+$S_1$ and $S_2$ contain the roots of $P(S_1)$ and $P(S_2)$ multiplied by $-1$ with the same multiplicities,
+respectively. Since the roots and multiplicities are the same for both polyonomials, the elements in $S_1$ and $S_2$
+must be the same with the same multiplicities. Thus, $S_1 = S_2$.
+
+
+b)
+
+\textbf{Intuition}
+
+From the lemma above, to determine if $S_1 = S_2$, it is equivalent to verify that $P(S_1) = P(S_2)$. To test if two
+polynomials are identical, we can make use of Sharwtz-Zippel. Simply construct $Q = P(S_1) - P(S_2)$. Then, we find that
+$Q(x) \neq 0 \Rightarrow P(S_1) \neq P(S_2)$ as the two different polynomials would report different values for the same
+$x$. Furthermore, $Q(x) = 0 \Rightarrow P(S_1) = P(S_2) \lor x \in roots(Q)$. In case 1, we can be sure that $S_1 \neq
+S_2$ and in case 2, there is ambiguity in the equality of the two sets.
+
+\textbf{Algorithm}
+
+Construct $P(S_1)$ and $P(S_2)$ for the two sets. Construct $Q = P(S_1) - P(S_2)$. We can represent these polynomials
+using arrays containing $e_i$ for each factor. Create a set $S$ of size $2n$ from randomly drawn reals. Thus, the
+probability of randomly drawing a root from $S$ is at most $\dfrac{1}{2}$ (by Sharwtz-Zippel). Draw $x$ from $S$. Check
+if $Q(x) = 0$ or $Q(x) \neq 0$ and return $YES$ (possible error) and $NO$, respectively.
+
+\begin{algorithm}
+    \caption{Multiset Equality}\label{euclid}
+    \begin{algorithmic}[1]
+        \Procedure{MultisetEquality}{$S_1$, $S_2$}
+        \If{$|S_1| \neq |S_2|$} \Return $NO$ \EndIf
+        \State $P(S_1)$ \gets $[e for e \in S_1]$  \Comment rep poly as list of factors to be multiplied
+        \State $P(S_2)$ \gets $[e for e \in S_2]$
+        \State $d \gets |S_1|$
+        \State $S \gets \Call{RandSet}{2d}$
+        \State $x \gets S[\Call{rand}{1, 2d}]$     \Comment draw value from $S$ in constant time (model)
+        \State $Q(x) \gets \Call{CalculatePoly}{P(S_1), P(S_2), x}$
+        \If{$Q(x) \neq 0$}                         \Comment polynomials not equal
+            \State \Return $NO$
+        \EndIf
+        \State \Return $YES$                        \Comment really a ``maybe''
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Procedure{RandSet}{$n$}
+        \State $A \gets [n]$
+        \For{$i \in [1 \ldots n]$}
+            \State $A[i] \gets \Call{rand}{-n, n}$
+        \EndFor
+        \State \Return $A$
+    \end{algorithmic}
+
+    \begin{algorithmic}[1]
+        \Procedure{CalculatePoly}{$P_1, P_2, x$}
+        \State $value_1 \gets 1$
+        \State $value_2 \gets 1$
+        \For{$i \in [1 \ldots |P_1|]$}
+            \State $value_1 \gets value_1 \times (x - P_1[i])$
+            \State $value_2 \gets value_2 \times (x - P_2[i])$
+        \EndFor
+        \State \Return $value_1 - value_2$
+    \end{algorithmic}
+\end{algorithm}
+
+
+\textbf{Analysis}
+
+First off, let's look at the runtime of the algorithm. Generating the arrays that store the two polynomials $P$ is
+linear with respect to the number of elements $n$. Creating a random set of size $2d = 2n$ takes $O(2n)$ time since we
+can draw random numbers within a range in constant time by the definition of our model of randomness. Calculating $Q$
+simply takes $O(n)$ time as well as we iterate over the two lists of size $n$ at the same time, and all arithmetic is
+constant time. Thus, the runtime of the algorithm is $O(n)$.
+
+As a concern of practicality, we could do our computation with $mod$ given some small prime to prevent overflow, but
+this could increase our probability of error. This would no doubt be a more practical algorithm, but as mentioned on
+Piazza, we do not have to worry about this practicality concern in this assignment and just do computation over reals.
+
+Now, we know that $Q$ is a single variable polynomial of total degree $n$. Now, in the case when $Q$ is identitically
+equal to 0, then $Q(x) = 0$ for any $x$. Reporting $YES$ in this case would be correct as the two sets are equal.
+
+Let's look at the case where $Q$ is not identitically 0. Following Sharwtz-Rappel, if we randomly draw $x$ from $|S|$,
+then $Pr\{Q(x) = 0\} \leq \dfrac{n}{2n} = \dfrac{1}{2}$. With probability $\leq \dfrac{1}{2}$, our algorithm would
+report $YES$ despite the fact that two multisets are not equal ($Q$ is not identitically 0). The error in this case is
+at most $\dfrac{1}{2}$.
+
+Thus, we have the following:
+\begin{itemize}
+    \item NO ($S_1 \neq S_2$): $Pr\{MultisetEquality(S_1, S_2) = NO\} \geq \dfrac{1}{2}$
+    \item YES ($S_1 = S_2$): $Pr\{MultisetEquality(S_1, S_2) = NO\} = 0$
+\end{itemize}
+
+Thus, we have an algorithm that has one-sided error. Our algorithm will always report $NO$ correctly, and report $YES$
+with an error of at most $\dfrac{1}{2}$.
+
+
+\end{document}
