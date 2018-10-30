@@ -7,6 +7,7 @@
 \usepackage[parfill]{parskip}
 \graphicspath{ {.} }
 \usepackage{listings}
+\usepackage{hyperref}
 \usepackage{xcolor}
 \lstset { %
     language=C++,
@@ -44,11 +45,16 @@ order must match index for index. Thus, we have $e_{si} = f_{si}$ for all $i$. T
 
 Prove $P(S_1) \equiv P(S_2) \Rightarrow S_1 = S_2$.
 
-If two polynomials in $x$ are the same, then they must have the same coefficeints when written in the form $a_n x^n +
-\ldots + a_1 x^1 + a_0$. Thus, they must also have the same roots with the same multiplicities.  By definition, the sets
-$S_1$ and $S_2$ contain the roots of $P(S_1)$ and $P(S_2)$ multiplied by $-1$ with the same multiplicities,
-respectively. Since the roots and multiplicities are the same for both polyonomials, the elements in $S_1$ and $S_2$
-must be the same with the same multiplicities. Thus, $S_1 = S_2$.
+If two polynomials in $x$ are the same, then they must have the same coefficients when written in the form $a_n x^n +
+\ldots + a_1 x^1 + a_0$ by definition. Now, if we have a polynomial with complex coefficients (all coefficients being
+real in this case), then the polynomial is uniquely factored as a product of linear terms, each of which corresponds to
+a specific root of the polynomial. This theorem is proved
+\href{http://mathonline.wikidot.com/the-factorization-of-polynomials-with-complex-coefficients}{here}. Thus, since there
+is only one unique factoring to linear terms, both $P(S_1)$ and $P(S_2)$ can only be factored into linear terms in the
+same way (since they are the same polynomial). Thus, we observe that the linear factors are the same, and so must be the
+roots and their multiplicities such that $e_i = f_i$ for all $i \in [1, \ldots, n]$ (can be re-ordered as such). Thus,
+the multisets $S_1$ and $S_2$, which are created from $e_i$ and $f_i$ values in the linear factor forms of $P(S_1)$ and
+$P(S_2)$, respectively, must be the same. Thus, $S_1 = S_2$.
 
 
 b)

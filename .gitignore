@@ -4,3 +4,4 @@
 *.gz
 *.zip
 *.fdb_latexmk
+*.out
