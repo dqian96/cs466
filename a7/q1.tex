@@ -1,0 +1,84 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage[parfill]{parskip}
+\graphicspath{ {.} }
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset { %
+    language=C++,
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\newcommand\floor[1]{\lfloor#1\rfloor}
+\newcommand\ceil[1]{\lceil#1\rceil}
+
+\newtheorem{theorem}{Theorem}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\title{CS 466: Algorithm Design and Analysis - Assignment 6}
+\author{Qian, Yan Liang (David)}
+\date{Date of submission: November 13, 2018}
+
+\begin{document}
+\newpage
+
+\section{Question 1}
+
+a)
+
+Yes. A poly-time constant factor approximation for the Independent Set (IS) problem does give a poly-time constant
+factor approximation for the Clique (CQ) problem.
+
+First we assert that if $U$ is a maximal independent set in $G'$ (complement of the graph), then $U$ is also the maximal
+clique in $G$. Hence $OPT_{IS}(G') = OPT_{CQ}(G)$. This can be seen by the question statement: ``$U$ is an independent
+set in $G$ $\iff$ $U$ is a clique in $G'$''. This equivalence indicates the largest IS in $G'$ is the largest CQ in $G$
+as there is a one-to-one mapping (largest clique corresponds to an IS and vice versa).
+
+Suppose we had a poly-time approximation algorithm for IS. Now, let's see if we can use the approximation algorithm for
+IS to find a constant factor approximation algorithm for CQ given some graph $G$. Simply run the IS approximation
+algorithm on $G'$ (poly-time operation) to get an IS $U$ for $G'$ with the bound $|U| \geq (1 -
+\epsilon)|OPT_{IS}(G')|$. Since $U$ would then be completely connected in $G$, it is also an approximation for the CQ
+problem. By the equality of the optimal solutions in the above paragraph, we would have this bound $|U| \geq (1 -
+\epsilon)|OPT_{CQ}(G)|$. Thus, we get a poly-time constant factor approximation for the clique problem given the IS
+approximation algorithm.
+
+
+b)
+
+No. A poly-time constant factor approximation for the Independent Set (IS) problem does not give a poly-time constant
+factor approximation for the Vertex Cover (VC) problem.
+
+First, we assert that if $U$ is a maximal independent set then $V - U$ is a minimal vertex cover. Hence $|V| =
+|OPT_{IS}| + |OPT_{VC}|$. This can be seen by the question statement: ``$U \subseteq V$ is an IS $\iff$ $V-U$ is a VC''.
+If $U'$ is the largest IS with a corresponding VC $V - U'$, then because there are no IS's bigger than $U'$, any smaller
+$V - U$ is not possible since $U'$ is maximal. Thus, $V - U'$ is a minimal cover.
+
+Suppose we had a poly-time approximation algorithm for IS. Then, we get the bound $|U'| \geq (1 - \epsilon)|OPT_{IS}|$.
+Observe the following:
+
+\begin{align*}
+    |V| &= |V| \\
+    |V| - |U'| &\leq |V| - (1 - \epsilon)|OPT_{IS}| \\
+    |V| - |U'| &\leq |OPT_{IS}| + |OPT_{VC}| - (1 - \epsilon)|OPT_{IS}| \\
+    |V| - |U'| &\leq |OPT_{IS}| + |OPT_{VC}| - |OPT_{IS}| + \epsilon |OPT_{IS}| \\
+    |V| - |U'| &\leq |OPT_{VC}| + \epsilon |OPT_{IS}| \\
+    |V| - |U'| &\leq \begin{cases}
+        (1 + \epsilon)|OPT_{VC}| & \text{if} \: |OPT_{VC}| \geq |OPT_{IS}| \\
+        |OPT_{VC}| + \epsilon |OPT_{IS}| & \text{else}
+    \end{cases}
+\end{align*}
+
+From the above, it is clear that the approximation depends on the relative sizes of $|OPT_{VC}|$ and $|OPT_{IS}|$. Thus,
+for some $\epsilon$, you would get a constant approx factor if the minimal VC is bigger than or equal to the maximal IS.
+However, if the maximal IS is bigger than the minimal VC, the approximation factor/bound can be violated as $|OPT_{VC}|
++ \epsilon |OPT_{IS}| > (1 + \epsilon)|OPT_{VC}|$ (this is a reachable, tight bound for this case).  Thus, a constant
+factor approximation for VC is not possible.
+
+\end{document}
