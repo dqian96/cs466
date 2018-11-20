@@ -33,52 +33,100 @@
 
 a)
 
-Yes. A poly-time constant factor approximation for the Independent Set (IS) problem does give a poly-time constant
-factor approximation for the Clique (CQ) problem.
+Prove that $G$ has a clique of size $t$ $\iff$ $G^k$ has a clique of size $t^k$.
 
-First we assert that if $U$ is a maximal independent set in $G'$ (complement of the graph), then $U$ is also the maximal
-clique in $G$. Hence $OPT_{IS}(G') = OPT_{CQ}(G)$. This can be seen by the question statement: ``$U$ is an independent
-set in $G$ $\iff$ $U$ is a clique in $G'$''. This equivalence indicates the largest IS in $G'$ is the largest CQ in $G$
-as there is a one-to-one mapping (largest clique corresponds to an IS and vice versa).
+($\Rightarrow$) Let $C$ be a clique of size $t$ in $G$. Denote the vertices in the clique as $c_i \in C$, for all
+integer $i \in [1, t]$. Consider $C'$, the subset of vertices in $G^k$ where for each $(v_1, \ldots, v_k), v_i \in C$.
+Now, for any two vertices $(u_1, \ldots, u_k)$ and $(v_1, \ldots, v_k)$ in $C'$, we see that for all $i$, either $u_i =
+v_i$ or there must be an edge between $u_i$ and $v_i$ in $G$ as $u_i, v_i \in C$. Thus, all vertices in $C'$ are
+completely connected to each other in $G^k$, meaning that $C'$ is a clique. Observe that for each of the $k$ entries in
+each tuple-vertex of $C'$, we can choose any of the $t$ vertices from $C$. Thus, since there are $t^k$ possible
+combinations for tuples of size $k$, we have $|C'| = t^k$. Thus, a clique of size $t^k$ exists in $G^k$.
 
-Suppose we had a poly-time approximation algorithm for IS. Now, let's see if we can use the approximation algorithm for
-IS to find a constant factor approximation algorithm for CQ given some graph $G$. Simply run the IS approximation
-algorithm on $G'$ (poly-time operation) to get an IS $U$ for $G'$ with the bound $|U| \geq (1 -
-\epsilon)|OPT_{IS}(G')|$. Since $U$ would then be completely connected in $G$, it is also an approximation for the CQ
-problem. By the equality of the optimal solutions in the above paragraph, we would have this bound $|U| \geq (1 -
-\epsilon)|OPT_{CQ}(G)|$. Thus, we get a poly-time constant factor approximation for the clique problem given the IS
-approximation algorithm.
+($\Leftarrow$) Following from the same conventions as above, $C'$ is a clique of size $t^k$ in $G^k$. This must mean
+that there are $t^k$ distinct vertices in $C'$, which must mean that there are $t^k$ distinct combinations of $(v_1,
+\ldots, v_k) \in C'$. To get $t^k$ distinct combinations, you need at least $t$ distinct elements for at least one index
+of the $k$-tuples in $C'$ (i.e. suppose you have $t-1$ distinct elements, then the most number of unique $k$-tuples you can
+make is $(t-1)^k$).  Since all vertices are completely connected in $C'$, we know that for the index that has at least
+$t$ distinct possible values/vertices, there must be an edge in $G$ between each pair of vertices/values for that index
+- otherwise there wouldn't be an edge between the $k$-tuple vertices in $C'$. Thus, there are at least $t$ vertices that
+are completely connected to each other in $G$, meaning there is a clique of size $t$ in $G$.
 
 
 b)
 
-No. A poly-time constant factor approximation for the Independent Set (IS) problem does not give a poly-time constant
-factor approximation for the Vertex Cover (VC) problem.
+\textbf{Intuition}
 
-First, we assert that if $U$ is a maximal independent set then $V - U$ is a minimal vertex cover. Hence $|V| =
-|OPT_{IS}| + |OPT_{VC}|$. This can be seen by the question statement: ``$U \subseteq V$ is an IS $\iff$ $V-U$ is a VC''.
-If $U'$ is the largest IS with a corresponding VC $V - U'$, then because there are no IS's bigger than $U'$, any smaller
-$V - U$ is not possible since $U'$ is maximal. Thus, $V - U'$ is a minimal cover.
+Suppose the maximum clique in $G$ has size $t$. ``Raising'' $G$ to some $k$ will map this clique to a larger clique of
+size $t^k$. A constant factor approximation algorithm will be able to find a clique that is a subset of these vertices,
+say of size $\dfrac{t^k}{2}$. We know that this clique has $\dfrac{t^k}{2}$ unique combinations of $k$-tuples.
+Correspondingly, for some index of the clique of $k$-tuples, there must be at least $\sqrt[k]{\dfrac{t^k}{2}}$ distinct
+values for $\dfrac{t^k}{2}$ combinations to be possible.  Since the clique is completely connected, we know that those
+$\sqrt[k]{\dfrac{t^k}{2}}$ vertices are completely connected in $G$ and are must form a clique. Note that the clique
+found in $G$ approximates to $\dfrac{t}{\sqrt[k]{2}}$ - this means as $k \rightarrow \infty$, we have
+$\dfrac{t}{\sqrt[k]{2}} \rightarrow t$.
 
-Suppose we had a poly-time approximation algorithm for IS. Then, we get the bound $|U'| \geq (1 - \epsilon)|OPT_{IS}|$.
-Observe the following:
+\textbf{Proof}
+
+Given $G$, let's find the maximum cover in $G^k$ for some $k$. Let $OPT$ be the maximum cover in $G$ and $OPT^k$ be the
+maximum cover in $G^k$.We will determine this $k$ later (honestly, what's with determining everything retrospectively).
+Run $A$ on $G^k$ to find a cover $C^k$. We know that $|C^k| \geq \dfrac{1}{2}|OPT^k|$ because the approximation factor of
+$A$ is $\dfrac{1}{2}$. Let $m \geq \dfrac{1}{2}$ be the actual approximation achieved - thus, $|C^k| = m |OPT^k|$. Now,
+going through the $k$-tuples \in $C^k$, we have at least $|C^k| = t^k$ possible combinations for some $t$. By the
+previous part, we know that there is a clique in $G$ of size $t$, which is an approximation of the maximum clique. Let
+$t = (1 - \epsilon)|OPT|$. Thus, we have $((1 - epsilon)|OPT|)^k = |C^k| = m |OPT^k|$.
+
+Note: In practice, we know that at least one index in the $k$-tuples in $C^k$ have $\lceil t \rceil$ distinct values
+(otherwise, $t^k$ combinations are not possible for $C^k$).
+
+Observe that $|OPT|^k = |OPT^k|$ as the largest clique in $G$ maps to a clique in $G'$ and vice
+versa by the above question. Now, let's re-arrange:
 
 \begin{align*}
-    |V| &= |V| \\
-    |V| - |U'| &\leq |V| - (1 - \epsilon)|OPT_{IS}| \\
-    |V| - |U'| &\leq |OPT_{IS}| + |OPT_{VC}| - (1 - \epsilon)|OPT_{IS}| \\
-    |V| - |U'| &\leq |OPT_{IS}| + |OPT_{VC}| - |OPT_{IS}| + \epsilon |OPT_{IS}| \\
-    |V| - |U'| &\leq |OPT_{VC}| + \epsilon |OPT_{IS}| \\
-    |V| - |U'| &\leq \begin{cases}
-        (1 + \epsilon)|OPT_{VC}| & \text{if} \: |OPT_{VC}| \geq |OPT_{IS}| \\
-        |OPT_{VC}| + \epsilon |OPT_{IS}| & \text{else}
-    \end{cases}
+    ((1 - \epsilon)|OPT|)^k &= m|OPT^k| \\
+    (1 - \epsilon)^k |OPT|^k &= m|OPT^k| \\
+    (1 - \epsilon)^k  &= m \\
+    k \log(1 - \epsilon)  &= \log m \\
+    k &=\dfrac{\log m}{\log(1 - \epsilon)} \\
+    k &= \dfrac{-1}{\log(1 - \epsilon)} && \text{worst case $m = \dfrac{1}{2}$; greater $m$ requires smaller $k$}
 \end{align*}
 
-From the above, it is clear that the approximation depends on the relative sizes of $|OPT_{VC}|$ and $|OPT_{IS}|$. Thus,
-for some $\epsilon$, you would get a constant approx factor if the minimal VC is bigger than or equal to the maximal IS.
-However, if the maximal IS is bigger than the minimal VC, the approximation factor/bound can be violated as $|OPT_{VC}|
-+ \epsilon |OPT_{IS}| > (1 + \epsilon)|OPT_{VC}|$ (this is a reachable, tight bound for this case).  Thus, a constant
-factor approximation for VC is not possible.
+Thus, for some given $\epsilon$ such that we get an approximation clique of size $(1 - \epsilon)|OPT|$ in $G$, we need
+to at least $k = \dfrac{-1}{\log(1- \epsilon)}$.
+
+
+\textbf{Algorithm}
+
+Based on the above proof, we first determine the necessary $k = \dfrac{-1}{\log(1 - \epsilon)}$ based on the given
+$\epsilon$. Then, we create $G^k$. We run $A$ on $G^k$ and then for the clique $C^k$ returned, we look through every
+index to find the largest list of values/vertices possible for that index. The maximal list will be $C$ such that $|C|
+\geq (1 - \epsilon)|OPT|$.
+
+\begin{algorithm}
+    \caption{PTAS for Clique}\label{euclid}
+    \begin{algorithmic}[1]
+        \Procedure{PTASClique}{$G = (V, E)$, $\epsilon$}
+        \State $k \gets \dfrac{-1}{\log (1 - \epsilon)}$
+        \State create graph $G^k$ brute-force
+        \State $C^k \gets \Call{A}{G^k}$
+        \State $C \gets \emptyset$
+        \For{$i \in [1, \ldots,  |C^k|]$}
+            \State $S \gets$ distinct vertices in $C^k$ for index $i$
+            \If{$|S| \geq |C|$}
+                \State $C \gets S$
+        \State \Return $C$
+    \end{algorithmic}
+\end{algorithm}
+
+\textbf{Analysis}
+
+The bottle-neck of this algorithm is generating $G^k$. For $k = \dfrac{-1}{\log ( 1 - \epsilon )}$. It's clear that
+there are $n^k$ vertices ($n$ choices for each of the $k$ indices in the tuple). There are at most $O(n^{2k})$ edges. A
+brute force graph construction of $G^k$ in which you iterate over every vertex/$k$-tuple, for each index and compare it
+with all the other vertices is bounded by $O(n^{3k})$. Running $A$ on this graph is $O(p(n^{k}))$. Iterating through the
+maximal clique in $G^k$ to find the maximal list of vertices for each index is no more than $O(n^{3k})$ (high upper
+bound than necessary because it's irrelevant/not the bottleneck). Thus, we see that the total runtime of the algorithm
+is $O(n^{\dfrac{-2}{\log(1 - \epsilon)}} + p(n^{\dfrac{-1}{\log (1- \epsilon)}}))$.
+
 
 \end{document}

@@ -33,104 +33,27 @@
 
 a)
 
-It is clear that the algorithm runs in $O(|E|)$. We see that every time the while loop runs and picks an edge, it sets
-at least one of the two vertices at the endpoints of the edge to have a weight of 0 in constant time. Thus, this edge
-can no longer be picked again (this also means that the while loop can just pick an edge by iterating over a fixed list
-of edges). In the worst case, each edge is picked once, resulting in $|E|$ iterations of the while loop. Thus, the
-runtime is $O(c|E|) \in O(|E|)$.
+Let's first prove that $b_j + b_{j+1} > 1$. Since the algorithm is online, suppose that we are at the point where bin
+$j$ is still open and we have not created bin $j + 1$ yet. Suppose that an item $s_k$ comes such that it cannot fit in bin
+$j$. This means that bin $j$ should be closed with a total amount of $b_j$ (total sum of items in bin $j$). Now, the
+only way such that $s_k$ could not fit into bin $j$ is if $s_k > 1 - b_j$ (more than the remaining space is necessary).
+We must put $s_k$ into bin $j + 1$ instead. Now, we have $b_{j + 1} \geq s_k > 1 - b_j$. Adding $b_j$ to this
+inequality, we have $b_j + b_{j + 1} > 1 - b_j + b_j > 1$. Thus, our initial claim is proven.
 
-\begin{lstlisting}
-# approximation for weighted vertex cover
+Now, let's suppose we have $m$ bins after the last item is inserted. Suppose $m$ is even. Now, if we were to sum over
+all $b_i$, we realize that $b_i + b_{i + 1} > 1$ for all $i \in \{1, 3, 5, m-1\}$ by the above proof. By grouping
+subsequent bins into $\dfrac{m}{2}$ pairs, where the sum of each pair is more than 1, we establish that $b_1 + b_2 +
+\ldots + b_{m-1} + b_{m} > 1 + 1 + \ldots + 1 > \dfrac{m}{2} > \dfrac{m-1}{2}$. Suppose that $m$ is odd instead. If this
+were the case, then we can once again establish that $b_1 + \ldots + b_m > \sum_{i \in \{1, 3, m-2\}} b_i + b_{i + 1} >
+\dfrac{m-1}{2}$ by ignoring the value of last bin $b_{m}$ and grouping the even number of $m-1$ bins into subsequent
+pairs, which yields $\dfrac{m-1}{2}$ pairs, whose sums are more than 1 (each pair). These two cases tell us that $b_1 +
+b_2 + \ldots + b_m > \dfrac{m-1}{2}$.
 
-# define Vertex and Edge data types (adjacency list representation)
-    class Vertex(object):
-        def __init__(self, neighbors, w):
-            # A vertex contains a list of references to other
-            # vertices (neighbors) and an weight (w).
-            self.neighbors = neighbors
-            self.w = w
-
-    class Edge(object):
-        def __init__(self, u, v):
-            # An edge contains two references to its endpoint vertices.
-            self.u = u
-            self.v = v
-
-    def weighted_vertex_cover(vertices, edges):
-        # Finds an approx min weighted vertex cover
-        # given a list of vertices and a list of edges (i.e. Graph).
-        cover_size = 0
-        for e in edges:
-            # O(|E|)
-            if e.u.w == 0 or e.v.w == 0: continue
-            x = min(e.u.w, e.v.w)
-            if e.u.w != e.v.w: cover_size += 1
-            else cover_size += 2
-            e.u.w -= x
-            e.v.w -= x
-
-        cover = [None] * cover_size
-        i = 0
-        for v in vertices:
-            if v.w == 0:
-                cover[i] = v
-                i += 1
-
-        return cover
-\end{lstlisting}
-
-
-b)
-
-Consider the following graph: $V = \{u, v, w \}$ with weights $w(u) = 2, w(v) = 4, w(w) = 3$ and edges $E = \{(u,
-v), (v, w) \}$.
-
-Then, without loss of generality, the algorithm in the question can first pick edge $(u, v)$, setting $w(u) = 0$ and
-$w(v) = 2$. Then, edge $(v, w)$ is picked since both of its endpoint vertices have positive weight. The edges picked by
-the algorithm are thus: $\{(u, v), (v, w)\}$. It is clear that the edges do not form a matching as $v$ appears twice.
-
-c)
-
-Let $k = t - i$. Prove that $P(k) = w_{t-k}(A) \leq 2w_{t-k}(OPT)$ for $k = 0$ to $k = t$.
-
-Base case: let's prove for $k = 0$ that $P(k=0) = w_{t-k}(A) \leq 2w_{t-k}(OPT) = w_{t}(A) \leq 2w_{t}(OPT)$ is true.
-Observe that $w_{t}(A) = 0$ since at the end of the $t$th (last) iteration in the algorithm, we construct $A$ by
-choosing all the vertices with 0 weight. Thus, naturally, the weight of $A$ must be 0 in the $t$th iteration by $A$'s
-construction. Note that all weights are always non-negative, since we only ever decrease the weight of a vertex by it's
-current value at the most.  Thus, $2_w{t}(OPT) \geq 0$. Thus, we have $0 = w_{t}(A) \leq 2w_{t}(OPT)$.
-
-Suppose that for some $k = n$ that $P(k=n) = w_{t-n}(A) \leq 2w_{t-n}(OPT)$ is true. This is our inductive hypothesis.
-Prove that $P(k=n+1)$ is true. For the edge picked in the $t-n$th iteration, we know that at least one of the endpoint
-vertices must be in the cover $A$ (the weight of at least one edge will be reduced to 0), or both (both vertices same
-weight). Thus, there are two situations: $w_{t-n}(A) = w_{t-n-1}(A) - x_{t-n}$ or $w_{t-n}(A) = w_{t-n-1}(A) - 2x_{t-n}$.
-Now, we know that since we pick a distinct edge in each iteration (by previous parts), then at least one of the vertices
-is in the optimal cover (by definition that a vertex cover must have one vertex from each edge). Thus, since are
-reducing the weight of both endpoint vertices in every iteration, and since at least one of those vertices are in the
-cover, we have two cases: $w_{t-n}(OPT) = w_{t-n-1}(OPT) - x_{t-n}$ or $w_{t-n}(OPT) = w_{t-n-1}(OPT) - 2x_{t-n}$.
-
-Now, by the inductive hypothesis, $w_{t-n}(A) \leq 2w_{t-n}(OPT)$. Let's look at all the different combination of cases:
-\begin{align*}
-    &\text{Case 1 (one vertex in A, one vertex in OPT)} \\
-    &w_{t-n-1}(A) - x_{t-n} \leq 2(w_{t-n-1}(OPT) - x_{t-n}) \\
-    \implies &w_{t-n-1}(A) \leq 2w_{t-n-1}(OPT) - x_{t-n} \\
-    \implies &w_{t-n-1}(A) \leq 2w_{t-n-1}(OPT) \\
-    &\text{Case 2 (two vertices in A, one vertex in OPT)} \\
-    &w_{t-n-1}(A) - 2x_{t-n} \leq 2(w_{t-n-1}(OPT) - x_{t-n}) \\
-    \implies &w_{t-n-1}(A) \leq 2w_{t-n-1}(OPT) \\
-    &\text{Case 3 (one vertex in A, two vertex in OPT)} \\
-    &w_{t-n-1}(A) - x_{t-n} \leq 2(w_{t-n-1}(OPT) - 2x_{t-n}) \\
-    \implies &w_{t-n-1}(A) \leq 2w_{t-n-1}(OPT) - 3x_{t-n} \\
-    \implies &w_{t-n-1}(A) \leq 2w_{t-n-1}(OPT) \\
-    &\text{Case 4 (two vertices in A, two vertices in OPT)} \\
-    &w_{t-n-1}(A) - 2x_{t-n} \leq 2(w_{t-n-1}(OPT) - 2x_{t-n}) \\
-    \implies &w_{t-n-1}(A) \leq 2w_{t-n-1}(OPT) - 2x_{t-n} \\
-    \implies &w_{t-n-1}(A) \leq 2w_{t-n-1}(OPT)
-\end{align*}
-
-Thus, we see that in all cases, we get that $P(k=n+1) = w_{t-(n+1)}(A) \leq 2w_{t-(n+1)}(OPT)$ is true.
-
-Thus, by our base case and our inductive hypothesis, we know that $P(k) = w_{t-k} \leq 2w_{t-k}(OPT)$ for all integer
-$k \in [0, \ldots t]$. Since $k = t - i$, we can clearly rearrange to see that $w_i(A) \leq 2w_{i}(OPT)$ is true for all
-integer $i \in [0, t]$. And so, $w_{0}(A) \leq 2w_{0}(OPT)$ is true.
+Observe that $\sum b_j \leq OPT$ as the sum of all items/bin values represents an ``ideal'' packing scenario in which
+there is no fragmentation, so the number of bins required in this best case scenario ($OPT$) is at least $\lceil \sum
+b_j \rceil$. In all other cases where there is fragmentation, the optimal solution must still be better than $\lceil
+\sum b_j \rceil$ as this is the theoretical minimum for storing the total value of items. Thus $OPT \geq \lceil \sum b_j
+\rceil \geq \sum b_j$. (This result was also stated in class.) Since $\dfrac{m-1}{2} < \sum b_j \leq OPT$, we have
+$\dfrac{m-1}{2} < OPT$, and so $m < 2OPT + 1$. Thus, the algorithm uses at most $2OPT + 1$ bins.
 
 \end{document}
