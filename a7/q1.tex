@@ -36,12 +36,13 @@ a)
 Prove that $G$ has a clique of size $t$ $\iff$ $G^k$ has a clique of size $t^k$.
 
 ($\Rightarrow$) Let $C$ be a clique of size $t$ in $G$. Denote the vertices in the clique as $c_i \in C$, for all
-integer $i \in [1, t]$. Consider $C'$, the subset of vertices in $G^k$ where for each $(v_1, \ldots, v_k), v_i \in C$.
-Now, for any two vertices $(u_1, \ldots, u_k)$ and $(v_1, \ldots, v_k)$ in $C'$, we see that for all $i$, either $u_i =
-v_i$ or there must be an edge between $u_i$ and $v_i$ in $G$ as $u_i, v_i \in C$. Thus, all vertices in $C'$ are
-completely connected to each other in $G^k$, meaning that $C'$ is a clique. Observe that for each of the $k$ entries in
-each tuple-vertex of $C'$, we can choose any of the $t$ vertices from $C$. Thus, since there are $t^k$ possible
-combinations for tuples of size $k$, we have $|C'| = t^k$. Thus, a clique of size $t^k$ exists in $G^k$.
+integer $i \in [1, t]$. Let $C'$ denote the subset of vertices in $G^k$ where for each vertex $(v_1, \ldots, v_k) \in
+C', v_i \in C$.  Now, for any two vertices $(u_1, \ldots, u_k)$ and $(v_1, \ldots, v_k)$ in $C'$, we see that for all
+$i$, either $u_i = v_i$ or there must be an edge between $u_i$ and $v_i$ in $G$ as both $u_i, v_i \in C$ by construction
+of $C'$. Thus, all vertices in $C'$ are completely connected to each other in $G^k$, meaning that $C'$ is a clique.  To
+calculate the size of $C'$, observe that $C'$ enumerates all $k$-tuples where each entry $v_i$ is from $C$.  Since there
+are $|C| = t$ possible values for any entry, there are $t^k$ possible combinations for tuples of size $k$. Thus, we have
+$|C'| = t^k$. Thus, $C'$ is a clique of size $t^k$ that exists in $G^k$.
 
 ($\Leftarrow$) Following from the same conventions as above, $C'$ is a clique of size $t^k$ in $G^k$. This must mean
 that there are $t^k$ distinct vertices in $C'$, which must mean that there are $t^k$ distinct combinations of $(v_1,
@@ -62,7 +63,7 @@ size $t^k$. A constant factor approximation algorithm will be able to find a cli
 say of size $\dfrac{t^k}{2}$. We know that this clique has $\dfrac{t^k}{2}$ unique combinations of $k$-tuples.
 Correspondingly, for some index of the clique of $k$-tuples, there must be at least $\sqrt[k]{\dfrac{t^k}{2}}$ distinct
 values for $\dfrac{t^k}{2}$ combinations to be possible.  Since the clique is completely connected, we know that those
-$\sqrt[k]{\dfrac{t^k}{2}}$ vertices are completely connected in $G$ and are must form a clique. Note that the clique
+$\sqrt[k]{\dfrac{t^k}{2}}$ vertices are completely connected in $G$ and must form a clique. Note that the clique
 found in $G$ approximates to $\dfrac{t}{\sqrt[k]{2}}$ - this means as $k \rightarrow \infty$, we have
 $\dfrac{t}{\sqrt[k]{2}} \rightarrow t$.
 
@@ -72,14 +73,14 @@ Given $G$, let's find the maximum cover in $G^k$ for some $k$. Let $OPT$ be the 
 maximum cover in $G^k$.We will determine this $k$ later (honestly, what's with determining everything retrospectively).
 Run $A$ on $G^k$ to find a cover $C^k$. We know that $|C^k| \geq \dfrac{1}{2}|OPT^k|$ because the approximation factor of
 $A$ is $\dfrac{1}{2}$. Let $m \geq \dfrac{1}{2}$ be the actual approximation achieved - thus, $|C^k| = m |OPT^k|$. Now,
-going through the $k$-tuples \in $C^k$, we have at least $|C^k| = t^k$ possible combinations for some $t$. By the
+going through the $k$-tuples $\in C^k$, we have at least $|C^k| = t^k$ possible combinations for some $t$. By the
 previous part, we know that there is a clique in $G$ of size $t$, which is an approximation of the maximum clique. Let
-$t = (1 - \epsilon)|OPT|$. Thus, we have $((1 - epsilon)|OPT|)^k = |C^k| = m |OPT^k|$.
+$t = (1 - \epsilon)|OPT|$. Thus, we have $((1 - \epsilon)|OPT|)^k = |C^k| = m |OPT^k|$.
 
-Note: In practice, we know that at least one index in the $k$-tuples in $C^k$ have $\lceil t \rceil$ distinct values
+Note: In practice, we know that at least one index for the $k$-tuples in $C^k$ have $\lceil t \rceil$ distinct values
 (otherwise, $t^k$ combinations are not possible for $C^k$).
 
-Observe that $|OPT|^k = |OPT^k|$ as the largest clique in $G$ maps to a clique in $G'$ and vice
+Observe that $|OPT|^k = |OPT^k|$ as the largest clique in $G$ maps to a clique in $G^k$ and vice
 versa by the above question. Now, let's re-arrange:
 
 \begin{align*}
@@ -97,16 +98,16 @@ to at least $k = \dfrac{-1}{\log(1- \epsilon)}$.
 
 \textbf{Algorithm}
 
-Based on the above proof, we first determine the necessary $k = \dfrac{-1}{\log(1 - \epsilon)}$ based on the given
-$\epsilon$. Then, we create $G^k$. We run $A$ on $G^k$ and then for the clique $C^k$ returned, we look through every
-index to find the largest list of values/vertices possible for that index. The maximal list will be $C$ such that $|C|
-\geq (1 - \epsilon)|OPT|$.
+Based on the above proof, we first determine the necessary $k = \lceil \dfrac{-1}{\log(1 - \epsilon)} \rceil$ based on
+the given $\epsilon$. Then, we create $G^k$. We run $A$ on $G^k$ and then for the clique $C^k$ returned, we look through
+every index to find the largest list of values/vertices possible for that index. The maximal list will be $C$ such that
+$|C| \geq (1 - \epsilon)|OPT|$.
 
 \begin{algorithm}
     \caption{PTAS for Clique}\label{euclid}
     \begin{algorithmic}[1]
         \Procedure{PTASClique}{$G = (V, E)$, $\epsilon$}
-        \State $k \gets \dfrac{-1}{\log (1 - \epsilon)}$
+        \State $k \gets \lceil \dfrac{-1}{\log (1 - \epsilon)} \rceil$
         \State create graph $G^k$ brute-force
         \State $C^k \gets \Call{A}{G^k}$
         \State $C \gets \emptyset$
@@ -114,19 +115,21 @@ index to find the largest list of values/vertices possible for that index. The m
             \State $S \gets$ distinct vertices in $C^k$ for index $i$
             \If{$|S| \geq |C|$}
                 \State $C \gets S$
+            \EndIf
+        \EndFor
         \State \Return $C$
     \end{algorithmic}
 \end{algorithm}
 
 \textbf{Analysis}
 
-The bottle-neck of this algorithm is generating $G^k$. For $k = \dfrac{-1}{\log ( 1 - \epsilon )}$. It's clear that
-there are $n^k$ vertices ($n$ choices for each of the $k$ indices in the tuple). There are at most $O(n^{2k})$ edges. A
-brute force graph construction of $G^k$ in which you iterate over every vertex/$k$-tuple, for each index and compare it
-with all the other vertices is bounded by $O(n^{3k})$. Running $A$ on this graph is $O(p(n^{k}))$. Iterating through the
-maximal clique in $G^k$ to find the maximal list of vertices for each index is no more than $O(n^{3k})$ (high upper
-bound than necessary because it's irrelevant/not the bottleneck). Thus, we see that the total runtime of the algorithm
-is $O(n^{\dfrac{-2}{\log(1 - \epsilon)}} + p(n^{\dfrac{-1}{\log (1- \epsilon)}}))$.
+The bottle-neck of this algorithm is generating $G^k$ for $k = \lceil \dfrac{-1}{\log ( 1 - \epsilon )} \rceil$. It's
+clear that there are $n^k$ vertices ($n$ choices for each of the $k$ indices in the tuple). There are at most
+$O(n^{2k})$ edges. A brute force graph construction of $G^k$ in which you iterate over every vertex/$k$-tuple, for each
+index and compare it with all the other vertices is bounded by $O(k n^{2k}) \in O(n^{3k})$. Running $A$ on this graph is
+$O(p(n^{k}))$.  Iterating through the maximal clique in $G^k$ to find the maximal list of vertices for each index is no
+more than $O(n^{3k})$ (high upper bound than necessary because it's irrelevant/not the bottleneck). Thus, we see that
+the total runtime of the algorithm is $O(n^{\dfrac{-3}{\log(1 - \epsilon)}} + p(n^{\dfrac{-1}{\log (1- \epsilon)}}))$.
 
 
 \end{document}
