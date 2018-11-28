@@ -44,9 +44,10 @@ requested). The cost for the last phase is 0 since no pages are evicted.
 The optimal algorithm, on the other hand, will evict at least 1 page per phase, except for the last one where it might
 do at least 0 work.
 
-Thus, the ratio of the work done by the stupid algorithm $A$ for the first $p - 1$ phases compared to the optimal for
-the whole sequence is $\dfrac{A(\nu_{p-1})}{OPT(\nu)} \leq k$. Adding the work $c$ done by $A$ for the last phase, we
-get the bound $A(\nu_{p-1}) + c = A(\nu) \leq k OPT(\nu) + c$. Since $c = 0$ as no pages are evicted by the last phase by
+Thus, the ratio of the work done for the first $p - 1$ phases by the stupid algorithm $A$ compared to the optimal
+is $\dfrac{A(\nu_{p-1})}{OPT(\nu_{p-1})} \leq k$. Suppose that the work done by the stupid algorithm and the optimal
+algorithm in the last phase is $c$ and $d$, respectively. Then, we have $A(\nu_{p -1}) + c \leq k OPT(\nu_{p-1}) + kd +
+c$, which is $A(\nu) \leq k OPT(\nu) + c$. Since $c = 0$ as no pages are evicted by the last phase by
 the stupid algorithm, we get $A(\nu) \leq k OPT(\nu)$, proving that our stupid algorithm is $k$-competitive.
 
 \end{document}
